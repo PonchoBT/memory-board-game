@@ -1,33 +1,29 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import Cards from './components/cards'
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import {useState } from 'react';
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [score, setScore] = useState(0);
+  
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <Container maxWidth="xl">
+      <Grid container sx={{ mt: 20 }}>
+        <Grid item xs={12}>
+          <Typography variant="h3" gutterBottom align='center'>
+           Memory Board Game
+          </Typography>
+        </Grid>
+        <Grid container spacing={2}>
+        <Grid xs={12} lg={12}className='card1'>
+          <Cards />
+        </Grid>
+        </Grid> 
+      </Grid>
+    </Container>
   )
 }
 
