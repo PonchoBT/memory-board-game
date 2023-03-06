@@ -39,7 +39,7 @@ function Cards() {
                 if (aciertos == 9) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Felicidades, eres ganador. 🥳'
+                        title: 'Felicidades, ganaste!!. 🥳'
                     })
 
                 }
@@ -58,7 +58,7 @@ function Cards() {
                 if (fallos == 5) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Eres perdedor 😔',
+                        title: 'Perdiste 😔',
                         text: 'Fin del juego'
                     })
                 }
