@@ -29,5 +29,5 @@ export const api =
             { id: 9, img: '/img/cards/009.png', stat: "" },
             { id: 9, img: '/img/cards/009.png', stat: "" },
     
-        ] 
+        ].sort(() => Math.random() - 0.5)
 }
