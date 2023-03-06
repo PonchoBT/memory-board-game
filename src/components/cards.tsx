@@ -94,7 +94,7 @@ function Cards() {
             <Box sx={{ flexGrow: 1 }}>
                 <Grid item xs={12}>
                     <Typography variant="h3" gutterBottom align='center' sx={{ mb: 5, mt:5 }}>
-                        Memory Board Game
+                    Juego Memorama
                     </Typography>
                 </Grid>
                 <Grid container spacing={2}>
