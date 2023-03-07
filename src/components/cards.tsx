@@ -20,11 +20,7 @@ function Cards() {
     function check(current: number) {
 
         if (fallidos == 5) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Something went wrong!'
-            })
+           
         } else {
 
             if (items[current].id == items[prev].id) {
