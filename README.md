@@ -35,5 +35,6 @@ To install
 ```
 // With npm
 npm install sweetalert2
+```
 
 sweet: https://sweetalert2.github.io/
