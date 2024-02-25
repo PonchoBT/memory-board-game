@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "react-scripts build",
-    "build:production": "react-scripts build",
-    "build:staging": "env-cmd -f .env.staging react-scripts build"
-  },
+    "build": "vite build",
+    "build:production": "vite build",
+    "build:staging": "env-cmd -f .env.staging vite build"
+  },  
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
