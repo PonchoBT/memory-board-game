@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
     "preview": "vite preview",
-    "build:prod": "env-cmd -f .env.production react-scripts build"
+    "build": "react-scripts build",
+    "build:production": "react-scripts build",
+    "build:staging": "env-cmd -f .env.staging react-scripts build"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -16,7 +17,7 @@
     "env-cmd": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sweetalert2": "^11.7.3"
+    "sweetalert2": "^11.6.13"
   },
   "devDependencies": {
     "@types/node": "^20.1.3",
