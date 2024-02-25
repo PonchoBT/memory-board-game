@@ -61,12 +61,14 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onReiniciarJuego }) => {
 
   const formatTime = () => {
     const getSeconds = `0${actualTime % 60}`.slice(-2);
-    const minutes = `${Math.floor(actualTime / 60)}`;
+    // Convert minutes to a number before performing the modulo operation
+    const minutes = Math.floor(actualTime / 60);
     const getMinutes = `0${minutes % 60}`.slice(-2);
     const getHours = `0${Math.floor(actualTime / 3600)}`.slice(-2);
-
+  
     return `${getHours} : ${getMinutes} : ${getSeconds}`;
   };
+  
 
   return (
     <div>
