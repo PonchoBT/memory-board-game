@@ -151,7 +151,6 @@ body {
 .side-content {
   display: flex;
   flex-direction: column;
-  gap: 18px;
 }
 
 .game-status {
@@ -170,10 +169,14 @@ body {
   flex-direction: column;
   gap: 18px;
   align-items: center;
+  width: 100%;
 }
 
 .play-button {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 12px 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
 }
 
 .play-button.highlight {

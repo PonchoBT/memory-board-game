@@ -8,9 +8,15 @@ interface TimerProps {
   reiniciar: boolean;
   onStartGame: () => void;
   highlightPlay: boolean;
+  onTimeChange: (segundos: number) => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame, highlightPlay }) => {
+const Timer: React.FC<TimerProps> = ({
+  reiniciar,
+  onStartGame,
+  highlightPlay,
+  onTimeChange,
+}) => {
   const [actualTime, setActualTime] = useState(0);
   const [btnPlayPause, setBtnPlayPause] = useState("Play");
   const [isPaused, setIsPaused] = useState(false);
@@ -26,10 +32,15 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame, highlightPlay }) 
     }
     if (!intervalId) {
       if (actualTime === 0) {
-        onStartGame();
+        onTimeChange(0);
       }
+      onStartGame();
       intervalId = setInterval(() => {
-        setActualTime((prevTime) => prevTime + 1);
+        setActualTime((prevTime) => {
+          const nextTime = prevTime + 1;
+          onTimeChange(nextTime);
+          return nextTime;
+        });
       }, 1000);
       setBtnPlayPause("Pause");
     }
@@ -45,6 +56,7 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame, highlightPlay }) 
 
   const clearTimer = () => {
     setActualTime(0);
+    onTimeChange(0);
     if (intervalId) {
       clearInterval(intervalId);
       intervalId = null;
@@ -88,6 +100,7 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame, highlightPlay }) 
         color="primary"
         onClick={initTimer}
         className={highlightPlay ? "play-button highlight" : "play-button"}
+        fullWidth
       >
         {btnPlayPause}
       </Button>

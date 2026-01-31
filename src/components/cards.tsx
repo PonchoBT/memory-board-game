@@ -15,6 +15,7 @@ function Cards() {
   const [items, setItems] = useState(api.getCard);
   const [ganados, setGanados] = useState(0);
   const [fallidos, setFallidos] = useState(0);
+  const [tiempo, setTiempo] = useState(0);
   const [prev, setPrev] = useState(-1);
   const [reiniciar, setReiniciar] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -23,12 +24,16 @@ function Cards() {
   const [resaltarPlay, setResaltarPlay] = useState(false);
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resaltarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const maxFallos = 5;
-
   const totalPairs = useMemo(() => Math.floor(items.length / 2), [items.length]);
   const gameWon = ganados === totalPairs;
-  const gameLost = fallidos >= maxFallos;
-  const gameOver = gameWon || gameLost;
+  const formatTime = (totalSegundos: number) => {
+    const getSeconds = `0${totalSegundos % 60}`.slice(-2);
+    const minutes = Math.floor(totalSegundos / 60);
+    const getMinutes = `0${minutes % 60}`.slice(-2);
+    const getHours = `0${Math.floor(totalSegundos / 3600)}`.slice(-2);
+    return `${getHours} : ${getMinutes} : ${getSeconds}`;
+  };
+
 
   const startPreview = (duracionMs: number) => {
     if (previewTimeoutRef.current) {
@@ -65,7 +70,8 @@ function Cards() {
       if (aciertos === totalPairs) {
         Swal.fire({
           icon: "success",
-          title: "Felicidades, ganaste!!. 🥳",
+          title: "¡Muy bien!",
+          text: `Tu tiempo: ${formatTime(tiempo)}`,
         });
       }
     } else {
@@ -82,13 +88,6 @@ function Cards() {
       }, 1000);
       const fallos = fallidos + 1;
       setFallidos(fallos);
-      if (fallos >= maxFallos) {
-        Swal.fire({
-          icon: "error",
-          title: "Perdiste 😔",
-          text: "Fin del juego",
-        });
-      }
     }
   }
   function handleClick(id: number) {
@@ -103,7 +102,7 @@ function Cards() {
       return;
     }
     if (previewActiva) return;
-    if (gameOver || isChecking) return;
+    if (gameWon || isChecking) return;
     if (items[id].stat === "correct") return;
     if (id === prev) {
       items[id].stat = "";
@@ -182,29 +181,17 @@ function Cards() {
           <Grid item xs={12} md={4} lg={3}>
             <Card className="side-card">
               <CardContent className="side-content">
-                <Typography variant="h6" gutterBottom className="stat-line">
-                  Aciertos: {ganados}/{totalPairs}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  color="error"
-                  className="stat-line"
-                >
-                  Fallidos: {fallidos}/{maxFallos}
-                </Typography>
-                <Typography variant="body2" className="game-status">
-                  {gameWon
-                    ? "Estado: Ganaste"
-                    : gameLost
-                      ? "Estado: Perdiste"
-                      : "Estado: En juego"}
-                </Typography>
+                {gameWon && (
+                  <Typography variant="body2" className="game-status">
+                    Estado: Ganaste
+                  </Typography>
+                )}
                 <Box className="timer-box">
                   <Timer
                     reiniciar={reiniciar}
                     onStartGame={() => setJuegoIniciado(true)}
                     highlightPlay={resaltarPlay}
+                    onTimeChange={setTiempo}
                   />
                 </Box>
                 <Button
