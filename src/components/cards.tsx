@@ -24,6 +24,7 @@ function Cards() {
   const [juegoIniciado, setJuegoIniciado] = useState(false);
   const [resaltarPlay, setResaltarPlay] = useState(false);
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resaltarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const objectUrlsRef = useRef<string[]>([]);
   const totalPairs = useMemo(() => Math.floor(items.length / 2), [items.length]);
@@ -55,12 +56,25 @@ function Cards() {
     }, duracionMs);
   };
 
+  const startPreviewSequence = (duracionMs: number, delayMs: number) => {
+    if (previewDelayRef.current) {
+      clearTimeout(previewDelayRef.current);
+    }
+    setPreviewActiva(false);
+    previewDelayRef.current = setTimeout(() => {
+      startPreview(duracionMs);
+    }, delayMs);
+  };
+
   useEffect(() => {
     setJuegoIniciado(false);
-    startPreview(10000);
+    startPreviewSequence(10000, 500);
     return () => {
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
+      }
+      if (previewDelayRef.current) {
+        clearTimeout(previewDelayRef.current);
       }
       if (resaltarTimeoutRef.current) {
         clearTimeout(resaltarTimeoutRef.current);
@@ -156,6 +170,10 @@ function Cards() {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
     }
+    if (previewDelayRef.current) {
+      clearTimeout(previewDelayRef.current);
+      previewDelayRef.current = null;
+    }
     if (resaltarTimeoutRef.current) {
       clearTimeout(resaltarTimeoutRef.current);
       resaltarTimeoutRef.current = null;
@@ -187,7 +205,7 @@ function Cards() {
     setPrev(-1);
     setIsChecking(false);
     setJuegoIniciado(false);
-    startPreview(10000);
+    startPreviewSequence(10000, 500);
   }
 
   return (
