@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Cardss from "./card";
 import { api } from "../services/cardService";
 import Swal from "sweetalert2";
@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
 import Timer from "./Timer";
 
 function Cards() {
@@ -16,96 +17,142 @@ function Cards() {
   const [fallidos, setFallidos] = useState(0);
   const [prev, setPrev] = useState(-1);
   const [reiniciar, setReiniciar] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [previewActiva, setPreviewActiva] = useState(false);
+  const [juegoIniciado, setJuegoIniciado] = useState(false);
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const maxFallos = 5;
+
+  const totalPairs = useMemo(() => Math.floor(items.length / 2), [items.length]);
+  const gameWon = ganados === totalPairs;
+  const gameLost = fallidos >= maxFallos;
+  const gameOver = gameWon || gameLost;
+
+  const startPreview = (duracionMs: number) => {
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+    }
+    setPreviewActiva(true);
+    previewTimeoutRef.current = setTimeout(() => {
+      setPreviewActiva(false);
+    }, duracionMs);
+  };
+
+  useEffect(() => {
+    setJuegoIniciado(false);
+    startPreview(10000);
+    return () => {
+      if (previewTimeoutRef.current) {
+        clearTimeout(previewTimeoutRef.current);
+      }
+    };
+  }, [reiniciar]);
 
   function check(current: number) {
-    if (fallidos == 5) {
+    if (items[current].id === items[prev].id) {
+      const aciertos = ganados + 1;
+      setGanados(aciertos);
+      items[current].stat = "correct";
+      items[prev].stat = "correct";
+      setItems([...items]);
+      setPrev(-1);
+
+      if (aciertos === totalPairs) {
+        Swal.fire({
+          icon: "success",
+          title: "Felicidades, ganaste!!. 🥳",
+        });
+      }
     } else {
-      if (items[current].id == items[prev].id) {
-        const aciertos = ganados + 1;
-        setGanados(aciertos);
-        items[current].stat = "correct";
-        items[prev].stat = "correct";
+      setIsChecking(true);
+      items[current].stat = "wrong";
+      items[prev].stat = "wrong";
+      setItems([...items]);
+      setTimeout(() => {
+        items[current].stat = "";
+        items[prev].stat = "";
         setItems([...items]);
         setPrev(-1);
-        if (aciertos == 1) {
-          Swal.fire({
-            icon: "success",
-            title: "Felicidades, ganaste!!. 🥳",
-          });
-        }
-      
-      } else {
-        items[current].stat = "wrong";
-        items[prev].stat = "wrong";
-        setItems([...items]);
-        setTimeout(() => {
-          items[current].stat = "";
-          items[prev].stat = "";
-          setItems([...items]);
-          setPrev(-1);
-        }, 1000);
-        const fallos = fallidos + 1;
-        setFallidos(fallos);
-        if (fallos == 5) {
-    
-          Swal.fire({
-            icon: "error",
-            title: "Perdiste 😔",
-            text: "Fin del juego",
-          });
-        }
+        setIsChecking(false);
+      }, 1000);
+      const fallos = fallidos + 1;
+      setFallidos(fallos);
+      if (fallos >= maxFallos) {
+        Swal.fire({
+          icon: "error",
+          title: "Perdiste 😔",
+          text: "Fin del juego",
+        });
       }
     }
   }
   function handleClick(id: number) {
+    if (!juegoIniciado) return;
+    if (previewActiva) return;
+    if (gameOver || isChecking) return;
+    if (items[id].stat === "correct") return;
+    if (id === prev) {
+      items[id].stat = "";
+      setItems([...items]);
+      setPrev(-1);
+      return;
+    }
+
     if (prev === -1) {
       items[id].stat = "active";
       setItems([...items]);
       setPrev(id);
-    } else {
-      check(id);
+      return;
     }
+
+    check(id);
   }
 
   function reiniciarJuego() {
-    const reiniciarCards = api.getCard.sort(() => Math.random() - 0.5);
-    for (let index = 0; index < reiniciarCards.length; index++) {
-      const card = reiniciarCards[index];
+    const reiniciarCards = [...api.getCard].sort(() => Math.random() - 0.5);
+    reiniciarCards.forEach((card) => {
       card.stat = "";
-    }
+    });
     setItems(reiniciarCards);
     setFallidos(0);
     setGanados(0);
+    setPrev(-1);
+    setIsChecking(false);
+    setPreviewActiva(false);
+    setJuegoIniciado(false);
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
     setReiniciar(!reiniciar);
-
-    window.location.reload();
   }
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" className="app-shell">
       <Box sx={{ flexGrow: 1 }}>
         <Grid item xs={12}>
           <Typography
             variant="h3"
             gutterBottom
             align="center"
-            sx={{ mb: 5, mt: 5 }}
+            className="game-title"
           >
             Juego Memorama
           </Typography>
         </Grid>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={8} lg={8}>
-            <Card className="card1">
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8} lg={9}>
+            <Card className="board-card">
               <CardContent>
-                <Grid container>
+                <Grid container spacing={2} className="cards-grid">
                   {items.map((item, index) => (
-                    <Grid item xs={4} md={2} key={index}>
+                    <Grid item xs={4} sm={3} md={2} key={index}>
                       <Cardss
                         key={index}
                         item={item}
                         id={index}
                         handleClick={handleClick}
+                        previewActiva={previewActiva}
                       />
                     </Grid>
                   ))}
@@ -113,18 +160,39 @@ function Cards() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={4} lg={4}>
-            <Card className="card2">
-              <CardContent>
-                <Typography variant="h6" color={"red"} gutterBottom>
-                  Fallidos: {fallidos}
+          <Grid item xs={12} md={4} lg={3}>
+            <Card className="side-card">
+              <CardContent className="side-content">
+                <Typography variant="h6" gutterBottom className="stat-line">
+                  Aciertos: {ganados}/{totalPairs}
                 </Typography>
-                <Grid item xs={12} lg={6} margin={"auto"} mt={4}>
-                  <Timer
-                    reiniciar={reiniciar}
-                    onReiniciarJuego={reiniciarJuego}
-                  />
-                </Grid>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  color="error"
+                  className="stat-line"
+                >
+                  Fallidos: {fallidos}/{maxFallos}
+                </Typography>
+                <Typography variant="body2" className="game-status">
+                  {gameWon
+                    ? "Estado: Ganaste"
+                    : gameLost
+                      ? "Estado: Perdiste"
+                      : "Estado: En juego"}
+                </Typography>
+                <Box className="timer-box">
+                  <Timer reiniciar={reiniciar} onStartGame={() => setJuegoIniciado(true)} />
+                </Box>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={reiniciarJuego}
+                  className="reset-button"
+                  fullWidth
+                >
+                  Jugar de nuevo
+                </Button>
               </CardContent>
             </Card>
           </Grid>
@@ -135,6 +203,3 @@ function Cards() {
 }
 
 export default Cards;
-function setBtnPlayPause(arg0: string) {
-  throw new Error("Function not implemented.");
-}

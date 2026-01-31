@@ -1,26 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
-let intervalId: NodeJS.Timeout | null = null;
+let intervalId: ReturnType<typeof setInterval> | null = null;
 
 interface TimerProps {
   reiniciar: boolean;
-  onReiniciarJuego: () => void;
+  onStartGame: () => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ reiniciar, onReiniciarJuego }) => {
+const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame }) => {
   const [actualTime, setActualTime] = useState(0);
   const [btnPlayPause, setBtnPlayPause] = useState("Play");
   const [isPaused, setIsPaused] = useState(false);
 
   const initTimer = () => {
-    if (intervalId || isPaused) {
-      setBtnPlayPause("Play");
+    if (intervalId) {
       pauseTimer();
+      setBtnPlayPause("Play");
+      return;
+    }
+    if (isPaused) {
       setIsPaused(false);
-      window.location.reload()
-    } else {
+    }
+    if (!intervalId) {
+      if (actualTime === 0) {
+        onStartGame();
+      }
       intervalId = setInterval(() => {
         setActualTime((prevTime) => prevTime + 1);
       }, 1000);
@@ -43,6 +49,7 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onReiniciarJuego }) => {
       intervalId = null;
     }
     setBtnPlayPause("Play");
+    setIsPaused(false);
   };
 
   useEffect(() => {
@@ -71,11 +78,10 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onReiniciarJuego }) => {
   
 
   return (
-    <div>
-      <div>
-        <Typography variant="h3">{formatTime()}</Typography>
-      </div>
-
+    <div className="timer">
+      <Typography variant="h4" className="timer-display">
+        {formatTime()}
+      </Typography>
       <Button variant="contained" color="primary" onClick={initTimer}>
         {btnPlayPause}
       </Button>
