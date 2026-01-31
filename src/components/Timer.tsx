@@ -7,9 +7,10 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 interface TimerProps {
   reiniciar: boolean;
   onStartGame: () => void;
+  highlightPlay: boolean;
 }
 
-const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame }) => {
+const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame, highlightPlay }) => {
   const [actualTime, setActualTime] = useState(0);
   const [btnPlayPause, setBtnPlayPause] = useState("Play");
   const [isPaused, setIsPaused] = useState(false);
@@ -82,7 +83,12 @@ const Timer: React.FC<TimerProps> = ({ reiniciar, onStartGame }) => {
       <Typography variant="h4" className="timer-display">
         {formatTime()}
       </Typography>
-      <Button variant="contained" color="primary" onClick={initTimer}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={initTimer}
+        className={highlightPlay ? "play-button highlight" : "play-button"}
+      >
         {btnPlayPause}
       </Button>
     </div>

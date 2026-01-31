@@ -172,6 +172,39 @@ body {
   align-items: center;
 }
 
+.play-button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-button.highlight {
+  animation: playShake 0.8s ease;
+  box-shadow: 0 16px 24px rgba(37, 99, 235, 0.35);
+}
+
+@keyframes playShake {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  15% {
+    transform: translateX(-8px) scale(1.02);
+  }
+  30% {
+    transform: translateX(8px) scale(1.03);
+  }
+  45% {
+    transform: translateX(-10px) scale(1.04);
+  }
+  60% {
+    transform: translateX(10px) scale(1.03);
+  }
+  75% {
+    transform: translateX(-6px) scale(1.02);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
 .timer-display {
   font-weight: 700;
   letter-spacing: 3px;

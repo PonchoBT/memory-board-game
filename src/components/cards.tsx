@@ -20,7 +20,9 @@ function Cards() {
   const [isChecking, setIsChecking] = useState(false);
   const [previewActiva, setPreviewActiva] = useState(false);
   const [juegoIniciado, setJuegoIniciado] = useState(false);
+  const [resaltarPlay, setResaltarPlay] = useState(false);
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resaltarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxFallos = 5;
 
   const totalPairs = useMemo(() => Math.floor(items.length / 2), [items.length]);
@@ -44,6 +46,9 @@ function Cards() {
     return () => {
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
+      }
+      if (resaltarTimeoutRef.current) {
+        clearTimeout(resaltarTimeoutRef.current);
       }
     };
   }, [reiniciar]);
@@ -87,7 +92,16 @@ function Cards() {
     }
   }
   function handleClick(id: number) {
-    if (!juegoIniciado) return;
+    if (!juegoIniciado) {
+      setResaltarPlay(true);
+      if (resaltarTimeoutRef.current) {
+        clearTimeout(resaltarTimeoutRef.current);
+      }
+      resaltarTimeoutRef.current = setTimeout(() => {
+        setResaltarPlay(false);
+      }, 700);
+      return;
+    }
     if (previewActiva) return;
     if (gameOver || isChecking) return;
     if (items[id].stat === "correct") return;
@@ -120,9 +134,14 @@ function Cards() {
     setIsChecking(false);
     setPreviewActiva(false);
     setJuegoIniciado(false);
+    setResaltarPlay(false);
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
+    }
+    if (resaltarTimeoutRef.current) {
+      clearTimeout(resaltarTimeoutRef.current);
+      resaltarTimeoutRef.current = null;
     }
     setReiniciar(!reiniciar);
   }
@@ -182,7 +201,11 @@ function Cards() {
                       : "Estado: En juego"}
                 </Typography>
                 <Box className="timer-box">
-                  <Timer reiniciar={reiniciar} onStartGame={() => setJuegoIniciado(true)} />
+                  <Timer
+                    reiniciar={reiniciar}
+                    onStartGame={() => setJuegoIniciado(true)}
+                    highlightPlay={resaltarPlay}
+                  />
                 </Box>
                 <Button
                   variant="contained"
