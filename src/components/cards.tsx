@@ -16,6 +16,7 @@ function Cards() {
   const [ganados, setGanados] = useState(0);
   const [fallidos, setFallidos] = useState(0);
   const [tiempo, setTiempo] = useState(0);
+  const [customImages, setCustomImages] = useState<string[]>([]);
   const [prev, setPrev] = useState(-1);
   const [reiniciar, setReiniciar] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -24,6 +25,7 @@ function Cards() {
   const [resaltarPlay, setResaltarPlay] = useState(false);
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resaltarTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const objectUrlsRef = useRef<string[]>([]);
   const totalPairs = useMemo(() => Math.floor(items.length / 2), [items.length]);
   const gameWon = ganados === totalPairs;
   const formatTime = (totalSegundos: number) => {
@@ -32,6 +34,14 @@ function Cards() {
     const getMinutes = `0${minutes % 60}`.slice(-2);
     const getHours = `0${Math.floor(totalSegundos / 3600)}`.slice(-2);
     return `${getHours} : ${getMinutes} : ${getSeconds}`;
+  };
+
+  const buildDeck = (images: string[]) => {
+    const deck = images.flatMap((img, index) => [
+      { id: index + 1, img, stat: "" },
+      { id: index + 1, img, stat: "" },
+    ]);
+    return deck.sort(() => Math.random() - 0.5);
   };
 
 
@@ -57,6 +67,13 @@ function Cards() {
       }
     };
   }, [reiniciar]);
+
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      objectUrlsRef.current = [];
+    };
+  }, []);
 
   function check(current: number) {
     if (items[current].id === items[prev].id) {
@@ -122,7 +139,8 @@ function Cards() {
   }
 
   function reiniciarJuego() {
-    const reiniciarCards = [...api.getCard].sort(() => Math.random() - 0.5);
+    const reiniciarCards =
+      customImages.length === 9 ? buildDeck(customImages) : [...api.getCard];
     reiniciarCards.forEach((card) => {
       card.stat = "";
     });
@@ -143,6 +161,33 @@ function Cards() {
       resaltarTimeoutRef.current = null;
     }
     setReiniciar(!reiniciar);
+  }
+
+  function handleUploadImages(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length !== 9) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sube 9 imágenes",
+        text: "Debes seleccionar exactamente 9 imágenes para jugar.",
+      });
+      event.target.value = "";
+      return;
+    }
+
+    objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    objectUrlsRef.current = [];
+
+    const urls = files.map((file) => URL.createObjectURL(file));
+    objectUrlsRef.current = urls;
+    setCustomImages(urls);
+    setItems(buildDeck(urls));
+    setFallidos(0);
+    setGanados(0);
+    setPrev(-1);
+    setIsChecking(false);
+    setJuegoIniciado(false);
+    startPreview(10000);
   }
 
   return (
@@ -186,6 +231,19 @@ function Cards() {
                     Estado: Ganaste
                   </Typography>
                 )}
+                <Box className="upload-box">
+                  <input
+                    id="upload-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleUploadImages}
+                    className="upload-input"
+                  />
+                  <label htmlFor="upload-images" className="upload-label">
+                    Subir 9 imágenes
+                  </label>
+                </Box>
                 <Box className="timer-box">
                   <Timer
                     reiniciar={reiniciar}

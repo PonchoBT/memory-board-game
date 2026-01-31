@@ -3,14 +3,13 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install env-cmd
         - npm ci
     build:
       commands:
-        - echo "I am running on $BUILD_ENV"
-        - npm run build:$BUILD_ENV
+        - echo "I am running on ${BUILD_ENV:-default}"
+        - if [ -n "$BUILD_ENV" ]; then npm run build:$BUILD_ENV; else npm run build; fi
   artifacts:
-    baseDirectory: build
+    baseDirectory: dist
     files:
       - '**/*'
   cache:
