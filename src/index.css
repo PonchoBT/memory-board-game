@@ -294,7 +294,8 @@ body {
   animation: 2s hideImage linear;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 6px;
   border-radius: 12px;
 }
 
