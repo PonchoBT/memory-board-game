@@ -9,6 +9,7 @@ interface TimerProps {
   onStartGame: () => void;
   highlightPlay: boolean;
   onTimeChange: (segundos: number) => void;
+  stop: boolean;
 }
 
 const Timer: React.FC<TimerProps> = ({
@@ -16,6 +17,7 @@ const Timer: React.FC<TimerProps> = ({
   onStartGame,
   highlightPlay,
   onTimeChange,
+  stop,
 }) => {
   const [actualTime, setActualTime] = useState(0);
   const [btnPlayPause, setBtnPlayPause] = useState("Play");
@@ -78,6 +80,15 @@ const Timer: React.FC<TimerProps> = ({
       clearTimer();
     }
   }, [reiniciar]);
+
+  useEffect(() => {
+    if (stop && intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+      setBtnPlayPause("Play");
+      setIsPaused(false);
+    }
+  }, [stop]);
 
   const formatTime = () => {
     const getSeconds = `0${actualTime % 60}`.slice(-2);

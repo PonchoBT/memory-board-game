@@ -262,12 +262,16 @@ function Cards() {
                     Subir 9 imágenes
                   </label>
                 </Box>
+                <Typography variant="body2" className="timer-label">
+                  Tiempo
+                </Typography>
                 <Box className="timer-box">
                   <Timer
                     reiniciar={reiniciar}
                     onStartGame={() => setJuegoIniciado(true)}
                     highlightPlay={resaltarPlay}
                     onTimeChange={setTiempo}
+                    stop={gameWon}
                   />
                 </Box>
                 <Button
